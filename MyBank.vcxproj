@@ -138,7 +138,18 @@
     <ClInclude Include="MyBank_Signup.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="users.h" />
+    <ClInclude Include="User.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MyBank_Login.resx">
+      <DependentUpon>MyBank_Login.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MyBank_MainForm.resx">
+      <DependentUpon>MyBank_MainForm.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MyBank_Signup.resx">
+      <DependentUpon>MyBank_Signup.h</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
