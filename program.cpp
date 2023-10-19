@@ -2,7 +2,6 @@
 #include "MyBank_Signup.h"
 #include "MyBank_MainForm.h"
 
-
 using namespace System;
 using namespace System::Windows::Forms;
 
