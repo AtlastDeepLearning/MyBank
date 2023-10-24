@@ -14,7 +14,7 @@ User^ AuthenticateUser()
         MyBank::MyBank_Login loginForm;
         loginForm.ShowDialog();
 
-        if (loginForm.switchToRegister)
+        if (loginForm.switchToSignup)
         {
             MyBank::MyBank_Signup registerForm;
             registerForm.ShowDialog();

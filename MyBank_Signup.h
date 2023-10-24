@@ -235,6 +235,10 @@ namespace MyBank {
 			this->btnOk->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(252)), static_cast<System::Int32>(static_cast<System::Byte>(113)),
 				static_cast<System::Int32>(static_cast<System::Byte>(59)));
 			this->btnOk->FlatAppearance->BorderSize = 0;
+			this->btnOk->FlatAppearance->MouseDownBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(252)),
+				static_cast<System::Int32>(static_cast<System::Byte>(113)), static_cast<System::Int32>(static_cast<System::Byte>(59)));
+			this->btnOk->FlatAppearance->MouseOverBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(252)),
+				static_cast<System::Int32>(static_cast<System::Byte>(113)), static_cast<System::Int32>(static_cast<System::Byte>(59)));
 			this->btnOk->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->btnOk->ForeColor = System::Drawing::Color::White;
 			this->btnOk->Location = System::Drawing::Point(60, 383);
@@ -272,6 +276,7 @@ namespace MyBank {
 			// Back
 			// 
 			this->Back->BackColor = System::Drawing::Color::Transparent;
+			this->Back->FlatAppearance->MouseOverBackColor = System::Drawing::Color::Transparent;
 			this->Back->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->Back->ForeColor = System::Drawing::Color::White;
 			this->Back->Location = System::Drawing::Point(133, 383);
@@ -365,14 +370,66 @@ namespace MyBank {
 
 	public: bool switchToLogin = false;
 
+	private:
+		System::Drawing::Color originalColorForCancel;
+
 	private: System::Void Back_Click(System::Object^ sender, System::EventArgs^ e) {
+		// Store the original color
+		originalColorForCancel = this->btnOk->BackColor;
+
+		// Darken the button's color
+		this->btnOk->BackColor = System::Drawing::Color::DarkGray;
+
+		// Shrink the button slightly
+		this->btnOk->Size = System::Drawing::Size(58, 23);
+
+		// Font size changes slitghtly
+		this->btnOk->Font = gcnew System::Drawing::Font(this->btnOk->Font->FontFamily, 9);
+
+		// Wait for a short period (you can adjust this value)
+		System::Threading::Thread::Sleep(100);
+
+		// Restore the button's original color
+		this->btnOk->BackColor = originalColorForCancel;
+
+		// Font size changes slitghtly
+		this->btnOk->Font = gcnew System::Drawing::Font(this->btnOk->Font->FontFamily, 11.25);
+
+		// Restore the button's original size
+		this->btnOk->Size = System::Drawing::Size(62, 27);
 		this->switchToLogin = true;
 		this->Close();
 	}
 
 	public: User^ user = nullptr;
 
+	private:
+		System::Drawing::Color originalColorForSubmit;
+
 	private: System::Void btnOk_Click(System::Object^ sender, System::EventArgs^ e) {
+		// Store the original color
+		originalColorForSubmit = this->btnOk->BackColor;
+
+		// Darken the button's color
+		this->btnOk->BackColor = System::Drawing::Color::DarkGray;
+
+		// Shrink the button slightly
+		this->btnOk->Size = System::Drawing::Size(58, 23);
+
+		// Font size changes slitghtly
+		this->btnOk->Font = gcnew System::Drawing::Font(this->btnOk->Font->FontFamily, 8);
+
+		// Wait for a short period (you can adjust this value)
+		System::Threading::Thread::Sleep(100);
+
+		// Restore the button's original color
+		this->btnOk->BackColor = originalColorForSubmit;
+
+		// Font size changes slitghtly
+		this->btnOk->Font = gcnew System::Drawing::Font(this->btnOk->Font->FontFamily, 9.25);
+
+		// Restore the button's original size
+		this->btnOk->Size = System::Drawing::Size(62, 27);
 
 		srand(time(0));
 

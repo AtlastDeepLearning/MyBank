@@ -5,13 +5,13 @@ using namespace System;
 public ref class User {
 public:
     // Database for User information
-    int id;
-    String^ fname;
-    String^ lname;
+	int id;
+	String^ fname;
+	String^ lname;
     String^ username; // Add username field
-    String^ accNumber;
-    String^ password;
-    Decimal balance;
+	String^ accNumber;
+	String^ password;
+	Decimal balance;
     // Database for transaction history
     int transaction_id;  // Corrected typo in variable name
     int user_id;

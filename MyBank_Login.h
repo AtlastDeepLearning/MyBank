@@ -135,6 +135,10 @@ namespace MyBank {
 			this->btnOk->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)), static_cast<System::Int32>(static_cast<System::Byte>(128)),
 				static_cast<System::Int32>(static_cast<System::Byte>(0)));
 			this->btnOk->FlatAppearance->BorderSize = 0;
+			this->btnOk->FlatAppearance->MouseDownBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)),
+				static_cast<System::Int32>(static_cast<System::Byte>(128)), static_cast<System::Int32>(static_cast<System::Byte>(0)));
+			this->btnOk->FlatAppearance->MouseOverBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)),
+				static_cast<System::Int32>(static_cast<System::Byte>(128)), static_cast<System::Int32>(static_cast<System::Byte>(0)));
 			this->btnOk->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->btnOk->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 11.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
@@ -153,6 +157,8 @@ namespace MyBank {
 			this->btnCancel->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"btnCancel.BackgroundImage")));
 			this->btnCancel->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->btnCancel->FlatAppearance->BorderSize = 0;
+			this->btnCancel->FlatAppearance->MouseDownBackColor = System::Drawing::Color::Transparent;
+			this->btnCancel->FlatAppearance->MouseOverBackColor = System::Drawing::Color::Transparent;
 			this->btnCancel->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->btnCancel->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 15.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
@@ -260,7 +266,34 @@ namespace MyBank {
 		}
 #pragma endregion
 
+	private:
+		System::Drawing::Color originalColorForExit;
+
 	private: System::Void btnCancel_Click(System::Object^ sender, System::EventArgs^ e) {
+		// Store the original color
+		originalColorForExit = this->btnOk->BackColor;
+
+		// Darken the button's color
+		this->btnOk->BackColor = System::Drawing::Color::DarkGray;
+
+		// Shrink the button slightly
+		this->btnOk->Size = System::Drawing::Size(58, 23);
+
+		// Font size changes slitghtly
+		this->btnOk->Font = gcnew System::Drawing::Font(this->btnOk->Font->FontFamily, 9);
+
+		// Wait for a short period (you can adjust this value)
+		System::Threading::Thread::Sleep(100);
+
+		// Restore the button's original color
+		this->btnOk->BackColor = originalColorForExit;
+
+		// Font size changes slitghtly
+		this->btnOk->Font = gcnew System::Drawing::Font(this->btnOk->Font->FontFamily, 11.25);
+
+		// Restore the button's original size
+		this->btnOk->Size = System::Drawing::Size(62, 27);
+
 		this->Close();
 	}
 
@@ -268,7 +301,35 @@ namespace MyBank {
 
 	public: bool switchToMainForm = false;
 
+	private:
+		System::Drawing::Color originalColorForSignin;
+
 	private: System::Void btnOk_Click(System::Object^ sender, System::EventArgs^ e) {
+
+		// Store the original color
+		originalColorForSignin = this->btnOk->BackColor;
+
+		// Darken the button's color
+		this->btnOk->BackColor = System::Drawing::Color::DarkGray;
+
+		// Shrink the button slightly
+		this->btnOk->Size = System::Drawing::Size(58, 23);
+
+		// Font size changes slitghtly
+		this->btnOk->Font = gcnew System::Drawing::Font(this->btnOk->Font->FontFamily, 9);
+
+		// Wait for a short period (you can adjust this value)
+		System::Threading::Thread::Sleep(100);
+
+		// Restore the button's original color
+		this->btnOk->BackColor = originalColorForSignin;
+
+		// Font size changes slitghtly
+		this->btnOk->Font = gcnew System::Drawing::Font(this->btnOk->Font->FontFamily, 11.25);
+
+		// Restore the button's original size
+		this->btnOk->Size = System::Drawing::Size(62, 27);
+
 		String^ username = this->tbUsername->Text;
 		String^ password = this->tbPassword->Text;
 
@@ -315,11 +376,15 @@ namespace MyBank {
 			MessageBox::Show("Failed to connect to database",
 				"Database Connection Error", MessageBoxButtons::OK);
 		}
+
+
 	}
 
-	public: bool switchToRegister = false;
+	
+
+	public: bool switchToSignup = false;
 	private: System::Void llRegistration_LinkClicked(System::Object^ sender, System::Windows::Forms::LinkLabelLinkClickedEventArgs^ e) {
-		this->switchToRegister = true;
+		this->switchToSignup = true;
 		this->Close();
 	}
 

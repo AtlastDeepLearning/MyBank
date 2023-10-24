@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "User.h"
 
 namespace MyBank {
@@ -22,19 +22,52 @@ namespace MyBank {
 		{
 			InitializeComponent();
 			
+			// Gets Current users data
 			currentUser = user;
-
 			String^ currentUser = user->username;
 
-			lbAccName->Text = user->fname + " " + user->lname;
+			lbAccName->Text = user->fname + " " + user->lname; // Current Users information for login
 			lbAccNumber->Text = user->accNumber;
 			lbCardAccName->Text = user->fname + " " + user->lname;
 			lbBalance->Text = String::Format("{0:N2}", user->balance);
-
 			lbCardInfoCardNumber->Text = user->accNumber;
 			lbCardInfoBalance->Text = String::Format("{0:N2}", user->balance);
 
-			Decimal currentBalance = user->balance;
+			// Retrieve and update transaction history
+			String^ connString = "Data Source=localhost\\sqlexpress;Initial Catalog=test;Integrated Security=True";
+			SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+			// Open the connection
+			sqlConn->Open();
+
+			String^ senderUsername = currentUser;
+
+			SqlCommand^ getTransactionHistoryCmd = gcnew SqlCommand("SELECT TOP 5 * FROM transactions WHERE username = @username ORDER BY dateAndTime DESC", sqlConn);
+			getTransactionHistoryCmd->Parameters->AddWithValue("@username", senderUsername);
+
+			SqlDataReader^ reader = getTransactionHistoryCmd->ExecuteReader();
+
+			int labelIndex = 1; // Initialize label index
+
+			while (reader->Read() && labelIndex <= 5) {
+				double amount = Convert::ToDouble(reader["amount"]);
+
+				String^ labelTextSent = String::Format("Sent Php. {0:N2}", amount);
+				Controls[String::Format("label{0}", labelIndex)]->Text = labelTextSent;
+
+				DateTime dateAndTime = Convert::ToDateTime(reader["dateAndTime"]);
+				String^ labelTextDate = dateAndTime.ToString();
+				Controls[String::Format("ll{0}", labelIndex)]->Text = labelTextDate;
+
+				labelIndex++; // Increment label index
+			}
+
+
+			reader->Close();
+
+			// Close the connection
+			sqlConn->Close();
+
 		}
 
 	private:
@@ -54,6 +87,7 @@ namespace MyBank {
 				delete components;
 			}
 		}
+
 	private: System::Windows::Forms::Label^ lbAccNumber;
 	private: System::Windows::Forms::PictureBox^ pictureBox1;
 	private: System::Windows::Forms::PictureBox^ pictureBox2;
@@ -78,20 +112,16 @@ namespace MyBank {
 	private: System::Windows::Forms::Label^ lbCardInfoBalance;
 	private: System::Windows::Forms::Label^ lbBalance;
 
-
 	private: System::Windows::Forms::Button^ btnLogout;
 	private: System::Windows::Forms::TextBox^ tbRecipient;
 
-
-
-
-
 	private: System::Windows::Forms::Button^ btnSendFunds;
 	private: System::Windows::Forms::TextBox^ tbAmount;
-
-
-
-
+	private: System::Windows::Forms::Label^ ll1;
+	private: System::Windows::Forms::Label^ ll2;
+	private: System::Windows::Forms::Label^ ll4;
+	private: System::Windows::Forms::Label^ ll3;
+	private: System::Windows::Forms::Label^ ll5;
 
 
 	protected:
@@ -137,6 +167,11 @@ namespace MyBank {
 			this->tbRecipient = (gcnew System::Windows::Forms::TextBox());
 			this->btnSendFunds = (gcnew System::Windows::Forms::Button());
 			this->tbAmount = (gcnew System::Windows::Forms::TextBox());
+			this->ll1 = (gcnew System::Windows::Forms::Label());
+			this->ll2 = (gcnew System::Windows::Forms::Label());
+			this->ll4 = (gcnew System::Windows::Forms::Label());
+			this->ll3 = (gcnew System::Windows::Forms::Label());
+			this->ll5 = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox3))->BeginInit();
@@ -230,10 +265,11 @@ namespace MyBank {
 			// 
 			this->label1->AutoSize = true;
 			this->label1->BackColor = System::Drawing::Color::Transparent;
-			this->label1->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 9.5F));
+			this->label1->Font = (gcnew System::Drawing::Font(L"Source Sans Pro Semibold", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
 			this->label1->Location = System::Drawing::Point(575, 182);
 			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(40, 17);
+			this->label1->Size = System::Drawing::Size(44, 17);
 			this->label1->TabIndex = 8;
 			this->label1->Text = L"label1";
 			// 
@@ -241,10 +277,11 @@ namespace MyBank {
 			// 
 			this->label2->AutoSize = true;
 			this->label2->BackColor = System::Drawing::Color::Transparent;
-			this->label2->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 9.5F));
+			this->label2->Font = (gcnew System::Drawing::Font(L"Source Sans Pro Semibold", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
 			this->label2->Location = System::Drawing::Point(575, 241);
 			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(40, 17);
+			this->label2->Size = System::Drawing::Size(44, 17);
 			this->label2->TabIndex = 9;
 			this->label2->Text = L"label2";
 			// 
@@ -252,10 +289,11 @@ namespace MyBank {
 			// 
 			this->label3->AutoSize = true;
 			this->label3->BackColor = System::Drawing::Color::Transparent;
-			this->label3->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 9.5F));
+			this->label3->Font = (gcnew System::Drawing::Font(L"Source Sans Pro Semibold", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
 			this->label3->Location = System::Drawing::Point(575, 299);
 			this->label3->Name = L"label3";
-			this->label3->Size = System::Drawing::Size(40, 17);
+			this->label3->Size = System::Drawing::Size(44, 17);
 			this->label3->TabIndex = 10;
 			this->label3->Text = L"label3";
 			// 
@@ -263,10 +301,11 @@ namespace MyBank {
 			// 
 			this->label4->AutoSize = true;
 			this->label4->BackColor = System::Drawing::Color::Transparent;
-			this->label4->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 9.5F));
+			this->label4->Font = (gcnew System::Drawing::Font(L"Source Sans Pro Semibold", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
 			this->label4->Location = System::Drawing::Point(575, 357);
 			this->label4->Name = L"label4";
-			this->label4->Size = System::Drawing::Size(40, 17);
+			this->label4->Size = System::Drawing::Size(44, 17);
 			this->label4->TabIndex = 11;
 			this->label4->Text = L"label4";
 			// 
@@ -274,10 +313,11 @@ namespace MyBank {
 			// 
 			this->label5->AutoSize = true;
 			this->label5->BackColor = System::Drawing::Color::Transparent;
-			this->label5->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 9.5F));
+			this->label5->Font = (gcnew System::Drawing::Font(L"Source Sans Pro Semibold", 9.75F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
 			this->label5->Location = System::Drawing::Point(575, 415);
 			this->label5->Name = L"label5";
-			this->label5->Size = System::Drawing::Size(40, 17);
+			this->label5->Size = System::Drawing::Size(44, 17);
 			this->label5->TabIndex = 12;
 			this->label5->Text = L"label5";
 			// 
@@ -451,11 +491,76 @@ namespace MyBank {
 			this->tbAmount->Size = System::Drawing::Size(149, 24);
 			this->tbAmount->TabIndex = 28;
 			// 
+			// ll1
+			// 
+			this->ll1->AutoSize = true;
+			this->ll1->BackColor = System::Drawing::Color::Transparent;
+			this->ll1->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->ll1->Location = System::Drawing::Point(588, 201);
+			this->ll1->Name = L"ll1";
+			this->ll1->Size = System::Drawing::Size(18, 14);
+			this->ll1->TabIndex = 29;
+			this->ll1->Text = L"ll1";
+			// 
+			// ll2
+			// 
+			this->ll2->AutoSize = true;
+			this->ll2->BackColor = System::Drawing::Color::Transparent;
+			this->ll2->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->ll2->Location = System::Drawing::Point(588, 259);
+			this->ll2->Name = L"ll2";
+			this->ll2->Size = System::Drawing::Size(18, 14);
+			this->ll2->TabIndex = 30;
+			this->ll2->Text = L"ll2";
+			// 
+			// ll4
+			// 
+			this->ll4->AutoSize = true;
+			this->ll4->BackColor = System::Drawing::Color::Transparent;
+			this->ll4->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->ll4->Location = System::Drawing::Point(588, 375);
+			this->ll4->Name = L"ll4";
+			this->ll4->Size = System::Drawing::Size(18, 14);
+			this->ll4->TabIndex = 31;
+			this->ll4->Text = L"ll4";
+			// 
+			// ll3
+			// 
+			this->ll3->AutoSize = true;
+			this->ll3->BackColor = System::Drawing::Color::Transparent;
+			this->ll3->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->ll3->Location = System::Drawing::Point(588, 317);
+			this->ll3->Name = L"ll3";
+			this->ll3->Size = System::Drawing::Size(18, 14);
+			this->ll3->TabIndex = 32;
+			this->ll3->Text = L"ll3";
+			// 
+			// ll5
+			// 
+			this->ll5->AutoSize = true;
+			this->ll5->BackColor = System::Drawing::Color::Transparent;
+			this->ll5->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->ll5->Location = System::Drawing::Point(588, 434);
+			this->ll5->Name = L"ll5";
+			this->ll5->Size = System::Drawing::Size(18, 14);
+			this->ll5->TabIndex = 33;
+			this->ll5->Text = L"ll5";
+			// 
 			// MyBank_MainForm
 			// 
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::None;
 			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"$this.BackgroundImage")));
 			this->ClientSize = System::Drawing::Size(872, 572);
+			this->Controls->Add(this->ll5);
+			this->Controls->Add(this->ll3);
+			this->Controls->Add(this->ll4);
+			this->Controls->Add(this->ll2);
+			this->Controls->Add(this->ll1);
 			this->Controls->Add(this->tbAmount);
 			this->Controls->Add(this->btnSendFunds);
 			this->Controls->Add(this->tbRecipient);
@@ -547,6 +652,42 @@ namespace MyBank {
 		updateRecipientBalanceCmd->Parameters->AddWithValue("@balance", recipientBalance);
 		updateRecipientBalanceCmd->Parameters->AddWithValue("@username", recipientUsername);
 		updateRecipientBalanceCmd->ExecuteNonQuery();
+		
+		// Step 6: Insert transaction details
+		SqlCommand^ insertTransactionCmd = gcnew SqlCommand("INSERT INTO transactions (username, balance, amount, newBalance, isRecieved, dateAndTime) VALUES (@username, @balance, @amount, @newBalance, @isReceived, @dateAndTime)", sqlConn);
+		insertTransactionCmd->Parameters->AddWithValue("@username", senderUsername);
+		insertTransactionCmd->Parameters->AddWithValue("@balance", senderBalance);
+		insertTransactionCmd->Parameters->AddWithValue("@amount", amount);
+		insertTransactionCmd->Parameters->AddWithValue("@newBalance", senderBalance); // Assuming this is the new balance for the sender
+		insertTransactionCmd->Parameters->AddWithValue("@isReceived", 0); // Assuming this is not a received transaction
+		insertTransactionCmd->Parameters->AddWithValue("@dateAndTime", DateTime::Now); // Assuming you want to use the current date and time
+
+		insertTransactionCmd->ExecuteNonQuery();
+
+		// Step 7: Retrieve transaction history for the current user
+		SqlCommand^ getTransactionHistoryCmd = gcnew SqlCommand("SELECT TOP 5 * FROM transactions WHERE username = @username ORDER BY dateAndTime DESC", sqlConn);
+		getTransactionHistoryCmd->Parameters->AddWithValue("@username", senderUsername);
+
+		SqlDataReader^ reader = getTransactionHistoryCmd->ExecuteReader();
+
+		int labelIndex = 1; // Initialize label index
+
+		while (reader->Read() && labelIndex <= 5) {
+			double amount = Convert::ToDouble(reader["amount"]);
+
+			String^ labelTextSent = String::Format("Sent Php. {0:N2}", amount);
+			Controls[String::Format("label{0}", labelIndex)]->Text = labelTextSent;
+
+			DateTime dateAndTime = Convert::ToDateTime(reader["dateAndTime"]);
+			String^ labelTextDate = dateAndTime.ToString();
+			Controls[String::Format("ll{0}", labelIndex)]->Text = labelTextDate;
+
+			labelIndex++; // Increment label index
+		}
+
+
+
+		reader->Close();
 
 		// Close the connection
 		sqlConn->Close();
