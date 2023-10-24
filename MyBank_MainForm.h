@@ -9,6 +9,7 @@ namespace MyBank {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace System::Data::SqlClient;
 
 	/// <summary>
 	/// Summary for MyBank_MainForm
@@ -16,9 +17,14 @@ namespace MyBank {
 	public ref class MyBank_MainForm : public System::Windows::Forms::Form
 	{
 	public:
+		User^ currentUser;
 		MyBank_MainForm(User^ user)
 		{
 			InitializeComponent();
+			
+			currentUser = user;
+
+			String^ currentUser = user->username;
 
 			lbAccName->Text = user->fname + " " + user->lname;
 			lbAccNumber->Text = user->accNumber;
@@ -27,8 +33,16 @@ namespace MyBank {
 
 			lbCardInfoCardNumber->Text = user->accNumber;
 			lbCardInfoBalance->Text = String::Format("{0:N2}", user->balance);
+
+			Decimal currentBalance = user->balance;
 		}
 
+	private:
+		void UpdateBalanceLabel(double newBalance) {
+			lbBalance->Text = String::Format("{0:N2}", newBalance);
+			lbCardInfoBalance->Text = String::Format("{0:N2}", newBalance);
+		}
+		
 	protected:
 		/// <summary>
 		/// Clean up any resources being used.
@@ -46,14 +60,14 @@ namespace MyBank {
 	private: System::Windows::Forms::PictureBox^ pictureBox3;
 	private: System::Windows::Forms::PictureBox^ pictureBox4;
 	private: System::Windows::Forms::PictureBox^ pictureBox5;
-	private: System::Windows::Forms::PictureBox^ pictureBox6;
+
 	private: System::Windows::Forms::Button^ btnCancel;
 	private: System::Windows::Forms::Label^ label1;
 	private: System::Windows::Forms::Label^ label2;
 	private: System::Windows::Forms::Label^ label3;
 	private: System::Windows::Forms::Label^ label4;
 	private: System::Windows::Forms::Label^ label5;
-	private: System::Windows::Forms::Label^ label6;
+
 	private: System::Windows::Forms::PictureBox^ pictureBox7;
 	private: System::Windows::Forms::Label^ lbAccName;
 	private: System::Windows::Forms::Label^ lbCardAccName;
@@ -63,9 +77,20 @@ namespace MyBank {
 	private: System::Windows::Forms::Label^ lbCardInfoMyBank;
 	private: System::Windows::Forms::Label^ lbCardInfoBalance;
 	private: System::Windows::Forms::Label^ lbBalance;
-	private: System::Windows::Forms::Button^ btnReport;
-	private: System::Windows::Forms::Button^ btnSettings;
+
+
 	private: System::Windows::Forms::Button^ btnLogout;
+	private: System::Windows::Forms::TextBox^ tbRecipient;
+
+
+
+
+
+	private: System::Windows::Forms::Button^ btnSendFunds;
+	private: System::Windows::Forms::TextBox^ tbAmount;
+
+
+
 
 
 
@@ -93,14 +118,12 @@ namespace MyBank {
 			this->pictureBox3 = (gcnew System::Windows::Forms::PictureBox());
 			this->pictureBox4 = (gcnew System::Windows::Forms::PictureBox());
 			this->pictureBox5 = (gcnew System::Windows::Forms::PictureBox());
-			this->pictureBox6 = (gcnew System::Windows::Forms::PictureBox());
 			this->btnCancel = (gcnew System::Windows::Forms::Button());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->label4 = (gcnew System::Windows::Forms::Label());
 			this->label5 = (gcnew System::Windows::Forms::Label());
-			this->label6 = (gcnew System::Windows::Forms::Label());
 			this->pictureBox7 = (gcnew System::Windows::Forms::PictureBox());
 			this->lbAccName = (gcnew System::Windows::Forms::Label());
 			this->lbCardAccName = (gcnew System::Windows::Forms::Label());
@@ -110,15 +133,15 @@ namespace MyBank {
 			this->lbCardInfoMyBank = (gcnew System::Windows::Forms::Label());
 			this->lbCardInfoBalance = (gcnew System::Windows::Forms::Label());
 			this->lbBalance = (gcnew System::Windows::Forms::Label());
-			this->btnReport = (gcnew System::Windows::Forms::Button());
-			this->btnSettings = (gcnew System::Windows::Forms::Button());
 			this->btnLogout = (gcnew System::Windows::Forms::Button());
+			this->tbRecipient = (gcnew System::Windows::Forms::TextBox());
+			this->btnSendFunds = (gcnew System::Windows::Forms::Button());
+			this->tbAmount = (gcnew System::Windows::Forms::TextBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox3))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox4))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox5))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox6))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox7))->BeginInit();
 			this->SuspendLayout();
 			// 
@@ -185,22 +208,14 @@ namespace MyBank {
 			this->pictureBox5->TabIndex = 5;
 			this->pictureBox5->TabStop = false;
 			// 
-			// pictureBox6
-			// 
-			this->pictureBox6->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"pictureBox6.BackgroundImage")));
-			this->pictureBox6->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->pictureBox6->Location = System::Drawing::Point(531, 467);
-			this->pictureBox6->Name = L"pictureBox6";
-			this->pictureBox6->Size = System::Drawing::Size(34, 34);
-			this->pictureBox6->TabIndex = 6;
-			this->pictureBox6->TabStop = false;
-			// 
 			// btnCancel
 			// 
 			this->btnCancel->BackColor = System::Drawing::Color::Transparent;
 			this->btnCancel->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"btnCancel.BackgroundImage")));
 			this->btnCancel->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->btnCancel->FlatAppearance->BorderSize = 0;
+			this->btnCancel->FlatAppearance->MouseDownBackColor = System::Drawing::Color::Transparent;
+			this->btnCancel->FlatAppearance->MouseOverBackColor = System::Drawing::Color::Transparent;
 			this->btnCancel->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->btnCancel->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 15.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
@@ -265,17 +280,6 @@ namespace MyBank {
 			this->label5->Size = System::Drawing::Size(40, 17);
 			this->label5->TabIndex = 12;
 			this->label5->Text = L"label5";
-			// 
-			// label6
-			// 
-			this->label6->AutoSize = true;
-			this->label6->BackColor = System::Drawing::Color::Transparent;
-			this->label6->Font = (gcnew System::Drawing::Font(L"Source Sans Pro", 9.5F));
-			this->label6->Location = System::Drawing::Point(575, 473);
-			this->label6->Name = L"label6";
-			this->label6->Size = System::Drawing::Size(40, 17);
-			this->label6->TabIndex = 13;
-			this->label6->Text = L"label6";
 			// 
 			// pictureBox7
 			// 
@@ -401,39 +405,14 @@ namespace MyBank {
 			this->lbBalance->Text = L"label8";
 			this->lbBalance->TextAlign = System::Drawing::ContentAlignment::TopCenter;
 			// 
-			// btnReport
-			// 
-			this->btnReport->BackColor = System::Drawing::Color::Transparent;
-			this->btnReport->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"btnReport.BackgroundImage")));
-			this->btnReport->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->btnReport->FlatAppearance->BorderSize = 0;
-			this->btnReport->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->btnReport->Location = System::Drawing::Point(27, 157);
-			this->btnReport->Name = L"btnReport";
-			this->btnReport->Size = System::Drawing::Size(111, 17);
-			this->btnReport->TabIndex = 23;
-			this->btnReport->UseVisualStyleBackColor = false;
-			// 
-			// btnSettings
-			// 
-			this->btnSettings->BackColor = System::Drawing::Color::Transparent;
-			this->btnSettings->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"btnSettings.BackgroundImage")));
-			this->btnSettings->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->btnSettings->FlatAppearance->BorderSize = 0;
-			this->btnSettings->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->btnSettings->Location = System::Drawing::Point(27, 205);
-			this->btnSettings->Name = L"btnSettings";
-			this->btnSettings->Size = System::Drawing::Size(111, 17);
-			this->btnSettings->TabIndex = 24;
-			this->btnSettings->UseVisualStyleBackColor = false;
-			this->btnSettings->Click += gcnew System::EventHandler(this, &MyBank_MainForm::btnSettings_Click);
-			// 
 			// btnLogout
 			// 
 			this->btnLogout->BackColor = System::Drawing::Color::Transparent;
 			this->btnLogout->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"btnLogout.BackgroundImage")));
 			this->btnLogout->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->btnLogout->FlatAppearance->BorderSize = 0;
+			this->btnLogout->FlatAppearance->MouseDownBackColor = System::Drawing::Color::Transparent;
+			this->btnLogout->FlatAppearance->MouseOverBackColor = System::Drawing::Color::Transparent;
 			this->btnLogout->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->btnLogout->Location = System::Drawing::Point(27, 431);
 			this->btnLogout->Name = L"btnLogout";
@@ -442,14 +421,45 @@ namespace MyBank {
 			this->btnLogout->UseVisualStyleBackColor = false;
 			this->btnLogout->Click += gcnew System::EventHandler(this, &MyBank_MainForm::btnLogout_Click);
 			// 
+			// tbRecipient
+			// 
+			this->tbRecipient->Location = System::Drawing::Point(383, 490);
+			this->tbRecipient->Name = L"tbRecipient";
+			this->tbRecipient->Size = System::Drawing::Size(193, 24);
+			this->tbRecipient->TabIndex = 26;
+			// 
+			// btnSendFunds
+			// 
+			this->btnSendFunds->BackColor = System::Drawing::Color::Transparent;
+			this->btnSendFunds->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"btnSendFunds.BackgroundImage")));
+			this->btnSendFunds->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
+			this->btnSendFunds->FlatAppearance->BorderSize = 0;
+			this->btnSendFunds->FlatAppearance->MouseDownBackColor = System::Drawing::Color::Transparent;
+			this->btnSendFunds->FlatAppearance->MouseOverBackColor = System::Drawing::Color::Transparent;
+			this->btnSendFunds->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
+			this->btnSendFunds->Location = System::Drawing::Point(799, 490);
+			this->btnSendFunds->Name = L"btnSendFunds";
+			this->btnSendFunds->Size = System::Drawing::Size(26, 26);
+			this->btnSendFunds->TabIndex = 27;
+			this->btnSendFunds->UseVisualStyleBackColor = false;
+			this->btnSendFunds->Click += gcnew System::EventHandler(this, &MyBank_MainForm::btnSendFunds_Click);
+			// 
+			// tbAmount
+			// 
+			this->tbAmount->Location = System::Drawing::Point(644, 490);
+			this->tbAmount->Name = L"tbAmount";
+			this->tbAmount->Size = System::Drawing::Size(149, 24);
+			this->tbAmount->TabIndex = 28;
+			// 
 			// MyBank_MainForm
 			// 
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::None;
 			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"$this.BackgroundImage")));
 			this->ClientSize = System::Drawing::Size(872, 572);
+			this->Controls->Add(this->tbAmount);
+			this->Controls->Add(this->btnSendFunds);
+			this->Controls->Add(this->tbRecipient);
 			this->Controls->Add(this->btnLogout);
-			this->Controls->Add(this->btnSettings);
-			this->Controls->Add(this->btnReport);
 			this->Controls->Add(this->lbBalance);
 			this->Controls->Add(this->lbCardInfoBalance);
 			this->Controls->Add(this->lbCardInfoMyBank);
@@ -459,14 +469,12 @@ namespace MyBank {
 			this->Controls->Add(this->lbCardAccName);
 			this->Controls->Add(this->lbAccName);
 			this->Controls->Add(this->pictureBox7);
-			this->Controls->Add(this->label6);
 			this->Controls->Add(this->label5);
 			this->Controls->Add(this->label4);
 			this->Controls->Add(this->label3);
 			this->Controls->Add(this->label2);
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->btnCancel);
-			this->Controls->Add(this->pictureBox6);
 			this->Controls->Add(this->pictureBox5);
 			this->Controls->Add(this->pictureBox4);
 			this->Controls->Add(this->pictureBox3);
@@ -485,7 +493,6 @@ namespace MyBank {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox3))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox4))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox5))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox6))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox7))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
@@ -505,5 +512,48 @@ namespace MyBank {
 		this->switchBackToLogin = true;
 		this->Close();
 	}
-	};
+	
+	private: System::Void btnSendFunds_Click(System::Object^ sender, System::EventArgs^ e) {
+		String^ connString = "Data Source=localhost\\sqlexpress;Initial Catalog=test;Integrated Security=True";
+		SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+
+		// Open the connection
+		sqlConn->Open();
+
+		String^ senderUsername = currentUser->username;  // Accessing the username property from the User object
+		String^ recipientUsername = tbRecipient->Text;
+		double amount = Convert::ToDouble(tbAmount->Text);
+		// Step 2: Retrieve the sender's current balance
+		SqlCommand^ getSenderBalanceCmd = gcnew SqlCommand("SELECT balance FROM users WHERE username = @username", sqlConn);
+		getSenderBalanceCmd->Parameters->AddWithValue("@username", senderUsername);
+		double senderBalance = Convert::ToDouble(getSenderBalanceCmd->ExecuteScalar());
+
+		// Step 3: Retrieve the recipient's current balance
+		SqlCommand^ getRecipientBalanceCmd = gcnew SqlCommand("SELECT balance FROM users WHERE username = @username", sqlConn);
+		getRecipientBalanceCmd->Parameters->AddWithValue("@username", recipientUsername);
+		double recipientBalance = Convert::ToDouble(getRecipientBalanceCmd->ExecuteScalar());
+
+		// Step 4: Perform calculations
+		senderBalance -= amount;
+		recipientBalance += amount;
+
+		// Step 5: Update balances in the database
+		SqlCommand^ updateSenderBalanceCmd = gcnew SqlCommand("UPDATE users SET balance = @balance WHERE username = @username", sqlConn);
+		updateSenderBalanceCmd->Parameters->AddWithValue("@balance", senderBalance);
+		updateSenderBalanceCmd->Parameters->AddWithValue("@username", senderUsername);
+		updateSenderBalanceCmd->ExecuteNonQuery();
+
+		SqlCommand^ updateRecipientBalanceCmd = gcnew SqlCommand("UPDATE users SET balance = @balance WHERE username = @username", sqlConn);
+		updateRecipientBalanceCmd->Parameters->AddWithValue("@balance", recipientBalance);
+		updateRecipientBalanceCmd->Parameters->AddWithValue("@username", recipientUsername);
+		updateRecipientBalanceCmd->ExecuteNonQuery();
+
+		// Close the connection
+		sqlConn->Close();
+
+		UpdateBalanceLabel(senderBalance);
+	}
+
+
+};
 }
