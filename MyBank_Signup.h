@@ -498,7 +498,7 @@ namespace MyBank {
 	private:
 		bool isButtonPressed = false;
 		System::Void btnSeePassword_Click(System::Object^ sender, System::EventArgs^ e) {
-			if (isButtonPressed) {
+					if (isButtonPressed) {
 				tbPassword->UseSystemPasswordChar = true; // Reset the textbox to use password char
 				try {
 					String^ imagePath = "C:\\Users\\Atlast\\Documents\\Mapua Documents\\Year 2\\CPE104L (Data Structure and Algorithm)\\MyBank\\MyBank\\images\\view.png"; // Change the path to the original image

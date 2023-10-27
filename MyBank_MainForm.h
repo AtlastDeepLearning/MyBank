@@ -52,7 +52,7 @@ namespace MyBank {
 			while (reader->Read() && labelIndex <= 5) {
 				double amount = Convert::ToDouble(reader["amount"]);
 
-				String^ labelTextSent = String::Format("Sent Php. {0:N2}", amount);
+				String^ labelTextSent = String::Format("Sent Php. {0:N2} to recipient {1}", amount, reader["recipient"]);
 				Controls[String::Format("label{0}", labelIndex)]->Text = labelTextSent;
 
 				DateTime dateAndTime = Convert::ToDateTime(reader["dateAndTime"]);
@@ -619,80 +619,96 @@ namespace MyBank {
 	}
 	
 	private: System::Void btnSendFunds_Click(System::Object^ sender, System::EventArgs^ e) {
-		String^ connString = "Data Source=localhost\\sqlexpress;Initial Catalog=test;Integrated Security=True";
-		SqlConnection^ sqlConn = gcnew SqlConnection(connString);
+		try {
+			String^ connString = "Data Source=localhost\\sqlexpress;Initial Catalog=test;Integrated Security=True";
+			SqlConnection^ sqlConn = gcnew SqlConnection(connString);
 
-		// Open the connection
-		sqlConn->Open();
+			// Open the connection
+			sqlConn->Open();
 
-		String^ senderUsername = currentUser->username;  // Accessing the username property from the User object
-		String^ recipientUsername = tbRecipient->Text;
-		double amount = Convert::ToDouble(tbAmount->Text);
-		// Step 2: Retrieve the sender's current balance
-		SqlCommand^ getSenderBalanceCmd = gcnew SqlCommand("SELECT balance FROM users WHERE username = @username", sqlConn);
-		getSenderBalanceCmd->Parameters->AddWithValue("@username", senderUsername);
-		double senderBalance = Convert::ToDouble(getSenderBalanceCmd->ExecuteScalar());
+			String^ senderUsername = currentUser->username;  // Accessing the username property from the User object
+			String^ recipientUsername = tbRecipient->Text;
+			double amount = Convert::ToDouble(tbAmount->Text);
+			// Step 2: Retrieve the sender's current balance
+			SqlCommand^ getSenderBalanceCmd = gcnew SqlCommand("SELECT balance FROM users WHERE username = @username", sqlConn);
+			getSenderBalanceCmd->Parameters->AddWithValue("@username", senderUsername);
+			double senderBalance = Convert::ToDouble(getSenderBalanceCmd->ExecuteScalar());
 
-		// Step 3: Retrieve the recipient's current balance
-		SqlCommand^ getRecipientBalanceCmd = gcnew SqlCommand("SELECT balance FROM users WHERE username = @username", sqlConn);
-		getRecipientBalanceCmd->Parameters->AddWithValue("@username", recipientUsername);
-		double recipientBalance = Convert::ToDouble(getRecipientBalanceCmd->ExecuteScalar());
+			// Step 3: Retrieve the recipient's current balance
+			SqlCommand^ getRecipientBalanceCmd = gcnew SqlCommand("SELECT balance FROM users WHERE username = @username", sqlConn);
+			getRecipientBalanceCmd->Parameters->AddWithValue("@username", recipientUsername);
+			//double recipientBalance = Convert::ToDouble(getRecipientBalanceCmd->ExecuteScalar());
+			Object^ result = getRecipientBalanceCmd->ExecuteScalar();
 
-		// Step 4: Perform calculations
-		senderBalance -= amount;
-		recipientBalance += amount;
+			// Check if recipient is found
+			if (result == nullptr) {
+				throw gcnew System::Exception("Recipient not found.");
+			}
 
-		// Step 5: Update balances in the database
-		SqlCommand^ updateSenderBalanceCmd = gcnew SqlCommand("UPDATE users SET balance = @balance WHERE username = @username", sqlConn);
-		updateSenderBalanceCmd->Parameters->AddWithValue("@balance", senderBalance);
-		updateSenderBalanceCmd->Parameters->AddWithValue("@username", senderUsername);
-		updateSenderBalanceCmd->ExecuteNonQuery();
+			double recipientBalance = Convert::ToDouble(result);
 
-		SqlCommand^ updateRecipientBalanceCmd = gcnew SqlCommand("UPDATE users SET balance = @balance WHERE username = @username", sqlConn);
-		updateRecipientBalanceCmd->Parameters->AddWithValue("@balance", recipientBalance);
-		updateRecipientBalanceCmd->Parameters->AddWithValue("@username", recipientUsername);
-		updateRecipientBalanceCmd->ExecuteNonQuery();
-		
-		// Step 6: Insert transaction details
-		SqlCommand^ insertTransactionCmd = gcnew SqlCommand("INSERT INTO transactions (username, balance, amount, newBalance, isRecieved, dateAndTime) VALUES (@username, @balance, @amount, @newBalance, @isReceived, @dateAndTime)", sqlConn);
-		insertTransactionCmd->Parameters->AddWithValue("@username", senderUsername);
-		insertTransactionCmd->Parameters->AddWithValue("@balance", senderBalance);
-		insertTransactionCmd->Parameters->AddWithValue("@amount", amount);
-		insertTransactionCmd->Parameters->AddWithValue("@newBalance", senderBalance); // Assuming this is the new balance for the sender
-		insertTransactionCmd->Parameters->AddWithValue("@isReceived", 0); // Assuming this is not a received transaction
-		insertTransactionCmd->Parameters->AddWithValue("@dateAndTime", DateTime::Now); // Assuming you want to use the current date and time
+			// Step 4: Perform calculations
+			senderBalance -= amount;
+			recipientBalance += amount;
 
-		insertTransactionCmd->ExecuteNonQuery();
+			// Step 5: Update balances in the database
+			SqlCommand^ updateSenderBalanceCmd = gcnew SqlCommand("UPDATE users SET balance = @balance WHERE username = @username", sqlConn);
+			updateSenderBalanceCmd->Parameters->AddWithValue("@balance", senderBalance);
+			updateSenderBalanceCmd->Parameters->AddWithValue("@username", senderUsername);
+			updateSenderBalanceCmd->ExecuteNonQuery();
 
-		// Step 7: Retrieve transaction history for the current user
-		SqlCommand^ getTransactionHistoryCmd = gcnew SqlCommand("SELECT TOP 5 * FROM transactions WHERE username = @username ORDER BY dateAndTime DESC", sqlConn);
-		getTransactionHistoryCmd->Parameters->AddWithValue("@username", senderUsername);
+			SqlCommand^ updateRecipientBalanceCmd = gcnew SqlCommand("UPDATE users SET balance = @balance WHERE username = @username", sqlConn);
+			updateRecipientBalanceCmd->Parameters->AddWithValue("@balance", recipientBalance);
+			updateRecipientBalanceCmd->Parameters->AddWithValue("@username", recipientUsername);
+			updateRecipientBalanceCmd->ExecuteNonQuery();
 
-		SqlDataReader^ reader = getTransactionHistoryCmd->ExecuteReader();
+			/// Step 6: Insert transaction details
+			SqlCommand^ insertTransactionCmd = gcnew SqlCommand("INSERT INTO transactions (username, balance, amount, newBalance, recipient, dateAndTime) VALUES (@username, @balance, @amount, @newBalance, @recipient, @dateAndTime)", sqlConn);
+			insertTransactionCmd->Parameters->AddWithValue("@username", senderUsername);
+			insertTransactionCmd->Parameters->AddWithValue("@balance", senderBalance);
+			insertTransactionCmd->Parameters->AddWithValue("@amount", amount);
+			insertTransactionCmd->Parameters->AddWithValue("@newBalance", senderBalance); // Assuming this is the new balance for the sender
+			insertTransactionCmd->Parameters->AddWithValue("@recipient", recipientUsername);
+			insertTransactionCmd->Parameters->AddWithValue("@dateAndTime", DateTime::Now); // Assuming you want to use the current date and time
 
-		int labelIndex = 1; // Initialize label index
+			insertTransactionCmd->ExecuteNonQuery();
 
-		while (reader->Read() && labelIndex <= 5) {
-			double amount = Convert::ToDouble(reader["amount"]);
+			// Step 7: Retrieve transaction history for the current user
+			SqlCommand^ getTransactionHistoryCmd = gcnew SqlCommand("SELECT TOP 5 * FROM transactions WHERE username = @username ORDER BY dateAndTime DESC", sqlConn);
+			getTransactionHistoryCmd->Parameters->AddWithValue("@username", senderUsername);
 
-			String^ labelTextSent = String::Format("Sent Php. {0:N2}", amount);
-			Controls[String::Format("label{0}", labelIndex)]->Text = labelTextSent;
+			SqlDataReader^ reader = getTransactionHistoryCmd->ExecuteReader();
 
-			DateTime dateAndTime = Convert::ToDateTime(reader["dateAndTime"]);
-			String^ labelTextDate = dateAndTime.ToString();
-			Controls[String::Format("ll{0}", labelIndex)]->Text = labelTextDate;
+			int labelIndex = 1; // Initialize label index
 
-			labelIndex++; // Increment label index
+			while (reader->Read() && labelIndex <= 5) {
+				double amount = Convert::ToDouble(reader["amount"]);
+
+				String^ labelTextSent = String::Format("Sent Php. {0:N2} to recipient {1}", amount, reader["recipient"]);
+				Controls[String::Format("label{0}", labelIndex)]->Text = labelTextSent;
+
+				DateTime dateAndTime = Convert::ToDateTime(reader["dateAndTime"]);
+				String^ labelTextDate = dateAndTime.ToString();
+				Controls[String::Format("ll{0}", labelIndex)]->Text = labelTextDate;
+
+				labelIndex++; // Increment label index
+			}
+
+			reader->Close();
+
+			// Close the connection
+			sqlConn->Close();
+
+			UpdateBalanceLabel(senderBalance);
+
+			// Show success message if no exceptions were thrown
+			MessageBox::Show("Transaction successful!", "Success", MessageBoxButtons::OK, MessageBoxIcon::Information);
+			this->tbRecipient->Text = " ";
+			this->tbAmount->Text = " ";
 		}
-
-
-
-		reader->Close();
-
-		// Close the connection
-		sqlConn->Close();
-
-		UpdateBalanceLabel(senderBalance);
+		catch (System::Exception^ ex) {
+			MessageBox::Show(ex->Message, "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
+		}
 	}
 
 
